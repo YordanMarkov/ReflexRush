@@ -18,7 +18,9 @@ struct GameView: View {
                     viewModel.registerTap()
                 }
                 .onReceive(NotificationCenter.default.publisher(for: .deviceDidShakeNotification)) { _ in
-                    viewModel.startGame()
+                    if !viewModel.isStarted {
+                        viewModel.startGame()
+                    }
                 }
 
 

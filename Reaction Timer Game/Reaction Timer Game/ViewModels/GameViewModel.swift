@@ -15,6 +15,7 @@ class GameViewModel: ObservableObject {
     @Published var reactionTime: Double?
     @Published var gameMessage: String = "Shake your device to start!"
     @Published var isGameActive: Bool = false
+    @Published var isStarted: Bool = false
     @Published var leaderboard: [Double] = []
     
     var audioPlayer: AVAudioPlayer?
@@ -48,6 +49,7 @@ class GameViewModel: ObservableObject {
 
     
     func startGame() {
+        isStarted = true
         reactionTime = nil
         isGameActive = false
         gameMessage = "Get Ready!"
@@ -85,6 +87,7 @@ class GameViewModel: ObservableObject {
             reactionTime = elapsedTime
             gameMessage = "You tapped!"
             isGameActive = false
+            isStarted = false
             updateLeaderboard(time: elapsedTime)
         }
     }
