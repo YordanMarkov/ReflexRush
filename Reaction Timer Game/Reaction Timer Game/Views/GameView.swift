@@ -25,6 +25,11 @@ struct GameView: View {
 
 
             VStack {
+//                if !viewModel.isStarted {
+//                    AnimatedImage(name: "blue-shake")
+//                        .resizable()
+//                        .scaledToFit()
+//                }
                 Text(viewModel.gameMessage)
                     .font(.title)
                     .padding()

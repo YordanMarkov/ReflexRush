@@ -21,7 +21,7 @@ class GameViewModel: ObservableObject {
     var audioPlayer: AVAudioPlayer?
 
     var backgroundColor: Color {
-        gameMessage == "TAP!" ? .red : .white
+        gameMessage == "TAP!" ? .red : .init(Color(red: 0.537, green: 0.714, blue: 0.945, opacity: 0.22))
     }
 
     func playSound(named soundName: String) {
