@@ -7,6 +7,7 @@
 
 import SwiftUI
 import AVFoundation // For the sounds
+import UIKit // For the vibrations
 
 
 class GameViewModel: ObservableObject {
@@ -33,6 +34,17 @@ class GameViewModel: ObservableObject {
             print("Error playing sound: \(error.localizedDescription)")
         }
     }
+    
+    func vibrate(style: UIImpactFeedbackGenerator.FeedbackStyle) {
+        let generator = UIImpactFeedbackGenerator(style: style)
+        generator.impactOccurred()
+    }
+
+    func vibrateNotification(type: UINotificationFeedbackGenerator.FeedbackType) {
+        let generator = UINotificationFeedbackGenerator()
+        generator.notificationOccurred(type)
+    }
+
 
     
     func startGame() {
@@ -46,6 +58,7 @@ class GameViewModel: ObservableObject {
                     self.gameMessage = "\(4-(i))"
                 }
                 self.playSound(named: "countdown-beep")
+                self.vibrate(style: .light)
                 sleep(1)
             }
 
@@ -67,6 +80,7 @@ class GameViewModel: ObservableObject {
     func registerTap() {
         if isGameActive, let start = startTime {
             self.playSound(named: "tap-sound")
+            self.vibrate(style: .medium)
             let elapsedTime = Date().timeIntervalSince(start)
             reactionTime = elapsedTime
             gameMessage = "You tapped!"
