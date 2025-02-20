@@ -6,6 +6,8 @@
 //
 
 import SwiftUI
+import AVFoundation // For the sounds
+
 
 class GameViewModel: ObservableObject {
     @Published var startTime: Date?
@@ -13,11 +15,26 @@ class GameViewModel: ObservableObject {
     @Published var gameMessage: String = "Shake your device to start!"
     @Published var isGameActive: Bool = false
     @Published var leaderboard: [Double] = []
+    
+    var audioPlayer: AVAudioPlayer?
 
     var backgroundColor: Color {
         gameMessage == "TAP!" ? .red : .white
     }
 
+    func playSound(named soundName: String) {
+        guard let path = Bundle.main.path(forResource: soundName, ofType: "mp3") else { return }
+        let url = URL(fileURLWithPath: path)
+        
+        do {
+            audioPlayer = try AVAudioPlayer(contentsOf: url)
+            audioPlayer?.play()
+        } catch {
+            print("Error playing sound: \(error.localizedDescription)")
+        }
+    }
+
+    
     func startGame() {
         reactionTime = nil
         isGameActive = false
@@ -28,6 +45,7 @@ class GameViewModel: ObservableObject {
                 DispatchQueue.main.async {
                     self.gameMessage = "\(4-(i))"
                 }
+                self.playSound(named: "countdown-beep")
                 sleep(1)
             }
 
@@ -48,6 +66,7 @@ class GameViewModel: ObservableObject {
 
     func registerTap() {
         if isGameActive, let start = startTime {
+            self.playSound(named: "tap-sound")
             let elapsedTime = Date().timeIntervalSince(start)
             reactionTime = elapsedTime
             gameMessage = "You tapped!"
