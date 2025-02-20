@@ -11,7 +11,8 @@ import SwiftUI
 struct Reaction_Timer_GameApp: App {
     var body: some Scene {
         WindowGroup {
-            ContentView()
+            // Main View to display
+            GameView()
         }
     }
 }
