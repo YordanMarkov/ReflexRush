@@ -99,4 +99,20 @@ class GameViewModel: ObservableObject {
             leaderboard.removeLast()
         }
     }
+    
+    func shareLeaderboard() {
+        let leaderboardText = leaderboard.prefix(10)
+            .enumerated()
+            .map { "\($0 + 1). \(String(format: "%.3f", $1)) sec" }
+            .joined(separator: "\n")
+        
+        let message = "🏆 Leaderboard 🏆\n\(leaderboardText)"
+        let activityVC = UIActivityViewController(activityItems: [message], applicationActivities: nil)
+        
+        // Present the share sheet
+        if let windowScene = UIApplication.shared.connectedScenes.first as? UIWindowScene,
+           let rootVC = windowScene.windows.first?.rootViewController {
+            rootVC.present(activityVC, animated: true, completion: nil)
+        }
+    }
 }

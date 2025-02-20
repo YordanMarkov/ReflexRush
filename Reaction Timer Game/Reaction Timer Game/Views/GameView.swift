@@ -61,6 +61,16 @@ struct GameView: View {
                                 .cornerRadius(20)
 
                         }
+                    Button(action: {
+                        viewModel.shareLeaderboard()
+                    }) {
+                        Text("Share Score")
+                            .frame(width: 150, height: 50)
+                            .background(Color.green)
+                            .foregroundColor(.white)
+                            .cornerRadius(20)
+                    }
+
                 }
             }
         }
