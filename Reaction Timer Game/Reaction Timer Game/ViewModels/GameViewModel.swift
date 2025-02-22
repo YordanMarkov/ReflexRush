@@ -21,15 +21,17 @@ class GameViewModel: ObservableObject {
     var audioPlayer: AVAudioPlayer?
 
     var backgroundColor: Color {
-        gameMessage == "TAP!" ? .red : .init(Color(red: 0.537, green: 0.714, blue: 0.945, opacity: 0.22))
+        gameMessage == "TAP!" ? Color(red: 0.0, green: 0.431, blue: 1.0) : .init(Color(red: 0.537, green: 0.714, blue: 0.945, opacity: 0.22))
     }
 
     func playSound(named soundName: String) {
-        guard let path = Bundle.main.path(forResource: soundName, ofType: "mp3") else { return }
-        let url = URL(fileURLWithPath: path)
+        guard let soundData = NSDataAsset(name: soundName)?.data else {
+            print("Error: Could not find sound \(soundName) in assets")
+            return
+        }
         
         do {
-            audioPlayer = try AVAudioPlayer(contentsOf: url)
+            audioPlayer = try AVAudioPlayer(data: soundData)
             audioPlayer?.play()
         } catch {
             print("Error playing sound: \(error.localizedDescription)")
@@ -52,7 +54,6 @@ class GameViewModel: ObservableObject {
         isStarted = true
         reactionTime = nil
         isGameActive = false
-        gameMessage = "Get Ready!"
 
         DispatchQueue.global().async {
             for i in 1...3 {
@@ -68,7 +69,7 @@ class GameViewModel: ObservableObject {
                 self.gameMessage = "Wait for it..."
             }
 
-            let randomTimeInterval: Double = .random(in: 0.5...2.0)
+            let randomTimeInterval: Double = .random(in: 2.0...5.0) // Increasing it to make it more fun! (My opinion)
             sleep(UInt32(randomTimeInterval))
 
             DispatchQueue.main.async {

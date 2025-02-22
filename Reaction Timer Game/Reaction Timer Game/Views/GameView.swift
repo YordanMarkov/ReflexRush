@@ -10,7 +10,38 @@ import UIKit
 
 struct GameView: View {
     @ObservedObject private var viewModel = GameViewModel()
+    
+    @State private var rotationAngle: Double = 0
+    @State private var isShaking = false
 
+    func startShakeAnimation() {
+        Timer.scheduledTimer(withTimeInterval: 5.0, repeats: true) { _ in // Longer natural pause
+            if !isShaking {
+                isShaking = true
+                
+                withAnimation(Animation.easeInOut(duration: 0.3).repeatCount(5, autoreverses: true)) {
+                    rotationAngle = -15 // Start left
+                }
+
+                DispatchQueue.main.asyncAfter(deadline: .now() + 0.15) {
+                    withAnimation(Animation.easeInOut(duration: 0.3).repeatCount(5, autoreverses: true)) {
+                        rotationAngle = 15
+                    }
+                }
+
+                DispatchQueue.main.asyncAfter(deadline: .now() + 1.5) {
+                    withAnimation(Animation.easeOut(duration: 0.6)) {
+                        rotationAngle = 0
+                    }
+
+                    DispatchQueue.main.asyncAfter(deadline: .now() + 0.6) {
+                        isShaking = false
+                    }
+                }
+            }
+        }
+    }
+    
     var body: some View {
         ZStack {
             viewModel.backgroundColor.ignoresSafeArea()
@@ -25,14 +56,17 @@ struct GameView: View {
 
 
             VStack {
-//                if !viewModel.isStarted {
-//                    AnimatedImage(name: "blue-shake")
-//                        .resizable()
-//                        .scaledToFit()
-//                }
+                if viewModel.gameMessage == "Shake your device to start!" {
+                    Image("phone")
+                        .rotationEffect(.degrees(rotationAngle))
+                        .onAppear {
+                            startShakeAnimation()
+                        }
+                }
                 Text(viewModel.gameMessage)
-                    .font(.title)
+                    .font(viewModel.gameMessage == "TAP!" ? .system(size: 60, weight: .bold) : .title)
                     .padding()
+                    .foregroundColor(viewModel.gameMessage == "TAP!" ? .white : .black)
 
                 if let time = viewModel.reactionTime {
                     HStack {
