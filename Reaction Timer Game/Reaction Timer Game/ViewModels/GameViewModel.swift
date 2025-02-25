@@ -17,14 +17,21 @@ class GameViewModel: ObservableObject {
     @Published var isGameActive: Bool = false
     @Published var isStarted: Bool = false
     @Published var leaderboard: [Double] = []
+    @Published var gameCancelled: Bool = false
+    private let gameQueue = OperationQueue()
+    @Published var isGameRunning: Bool = false
     
     var audioPlayer: AVAudioPlayer?
 
     var backgroundColor: Color {
         if gameMessage == "TAP!" {
-            return Color(red: 0.0, green: 0.431, blue: 1.0)
-        } else if ["1", "2", "3", "Wait..."].contains(gameMessage) {
+            return Color(red: 0.0, green: 0.133, blue: 1.0)
+        } else if ["1", "2", "3"].contains(gameMessage) {
             return Color(red: 0.537, green: 0.714, blue: 0.945)
+        } else if gameMessage == "Wait..." {
+            return Color(red: 0.816, green: 0.357, blue: 0.624)
+        } else if gameMessage == "TOO EARLY!" {
+            return .red
         } else {
             return Color(red: 0.537, green: 0.714, blue: 0.945, opacity: 0.22)
         }
@@ -54,51 +61,103 @@ class GameViewModel: ObservableObject {
         let generator = UINotificationFeedbackGenerator()
         generator.notificationOccurred(type)
     }
-
-
     
-    func startGame() {
-        isStarted = true
-        reactionTime = nil
+    func resetGameState() {
+        gameQueue.cancelAllOperations()
+        gameCancelled = true
+        isGameRunning = false
+        isStarted = false
         isGameActive = false
+        gameMessage = ""
+        startTime = nil
+        reactionTime = nil
 
-        DispatchQueue.global().async {
-            for i in 1...3 {
-                DispatchQueue.main.async {
-                    self.gameMessage = "\(4-(i))"
+        gameQueue.waitUntilAllOperationsAreFinished()
+    }
+
+
+    func startGame() {
+        if isGameRunning { return }
+        resetGameState()
+
+        DispatchQueue.global(qos: .userInitiated).async {
+            self.gameQueue.waitUntilAllOperationsAreFinished()
+
+            DispatchQueue.main.asyncAfter(deadline: .now() + 0.1) {
+                self.gameCancelled = false
+                self.isStarted = true
+                self.isGameRunning = true
+                self.reactionTime = nil
+                self.isGameActive = false
+
+                let gameOperation = BlockOperation {
+                    for i in 1...3 {
+                        if self.gameCancelled { return }
+                        DispatchQueue.main.async {
+                            self.gameMessage = "\(4 - i)"
+                        }
+                        self.playSound(named: "countdown-beep")
+                        self.vibrate(style: .soft)
+                        sleep(1)
+                    }
+
+                    DispatchQueue.main.async {
+                        if self.gameCancelled { return }
+                        self.gameMessage = "Wait..."
+                    }
+
+                    let randomTimeInterval: Double = .random(in: 2.0...5.0)
+
+                    let startTime = Date()
+                    while Date().timeIntervalSince(startTime) < randomTimeInterval {
+                        if self.gameCancelled { return }
+                        usleep(100_000)
+                    }
+
+                    DispatchQueue.main.async {
+                        if self.gameCancelled { return }
+                        self.gameMessage = "TAP!"
+                        self.vibrate(style: .heavy)
+                        self.startTime = Date()
+                        self.isGameActive = true
+                        self.isGameRunning = false
+                    }
                 }
-                self.playSound(named: "countdown-beep")
-                self.vibrate(style: .light)
-                sleep(1)
-            }
 
-            DispatchQueue.main.async {
-                self.gameMessage = "Wait..."
-            }
-
-            let randomTimeInterval: Double = .random(in: 2.0...5.0) // Increasing it to make it more intense! (My opinion)
-            sleep(UInt32(randomTimeInterval))
-
-            DispatchQueue.main.async {
-                self.gameMessage = "TAP!"
-                self.startTime = Date()
-                self.isGameActive = true
+                self.gameQueue.addOperation(gameOperation)
             }
         }
     }
 
+
+    
     func registerTap() {
+        if gameMessage == "Wait..." {
+            resetGameState()
+            gameMessage = "TOO EARLY!"
+            playSound(named: "fail")
+            vibrateNotification(type: .error)
+
+            gameQueue.cancelAllOperations()
+            DispatchQueue.main.asyncAfter(deadline: .now() + 2.0) {
+                self.startGame()
+            }
+            return
+        }
+
         if isGameActive, let start = startTime {
             self.playSound(named: "tap-sound")
-            self.vibrate(style: .medium)
+            self.vibrate(style: .light)
             let elapsedTime = Date().timeIntervalSince(start)
             reactionTime = elapsedTime
             gameMessage = reactionMessage(for: elapsedTime)
             isGameActive = false
             isStarted = false
+            isGameRunning = false
             updateLeaderboard(time: elapsedTime)
         }
     }
+
 
     // Adding additional messages at the end so it makes the game more fun! (My opinion)
     func reactionMessage(for time: Double) -> String {

@@ -52,7 +52,7 @@ struct GameView: View {
     }
     
     func isImportantMessage(_ message: String) -> Bool {
-        return ["TAP!", "Wait...", "1", "2", "3"].contains(message)
+        return ["TAP!", "Wait...", "1", "2", "3", "TOO EARLY!"].contains(message)
     }
     
     var body: some View {
