@@ -1,7 +1,7 @@
 {
   "images" : [
     {
-      "filename" : "Reflex Rush - Any.png",
+      "filename" : "Asset 5 (2).png",
       "idiom" : "universal",
       "platform" : "ios",
       "size" : "1024x1024"
@@ -13,7 +13,6 @@
           "value" : "dark"
         }
       ],
-      "filename" : "Reflex Rush - Dark.png",
       "idiom" : "universal",
       "platform" : "ios",
       "size" : "1024x1024"
