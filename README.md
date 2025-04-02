@@ -30,7 +30,7 @@ To open this project on your device, follow these steps:
 
 1. Make sure you have **Git** installed on your device. If not, download it [here](https://git-scm.com/downloads).
 2. Make sure you have **Xcode** installed. If not, download it from the [App Store](https://apps.apple.com/us/app/xcode/id497799835).
-3. Copy the link of **this** repository: [https://git.fhict.nl/I524517/reaction-timer-game](https://git.fhict.nl/I524517/reaction-timer-game).
+3. Copy the link of **this** repository: https://github.com/YordanMarkov/ReflexRush.
 4. Open a terminal on your device and navigate through the folders using the **cd** command.
 5. Once you are inside the desired directory, run the command:
     **git clone https://git.fhict.nl/I524517/reaction-timer-game**
